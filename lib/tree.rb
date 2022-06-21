@@ -25,6 +25,7 @@ class Tree
     else
       curr_root.right = insert(curr_root.right, value)
     end
+    rebalance unless balanced?
     curr_root
   end
 
@@ -37,6 +38,7 @@ class Tree
     else
       return curr_root.right if curr_root.left.nil?
       return curr_root.left if curr_root.right.nil?
+      rebalance unless balanced?
       curr_root.data = min_value(curr_root.right)
       curr_root.right = delete(curr_root.right, curr_root.data)
     end
@@ -52,8 +54,16 @@ class Tree
     value < curr_root.data ? find(curr_root.left, value) : find(curr_root.right, value)
   end
 
-  def level_order(&block)
-
+  def level_order(values = [], &block)
+    curr_node = root
+    queue = [curr_node] unless curr_node.nil?
+    until queue.empty?
+      curr_node = queue.pop
+      block_given?  ? block.call(curr_node) : values << curr_node.data
+      queue.unshift(curr_node.left) unless curr_node.left.nil?
+      queue.unshift(curr_node.right) unless curr_node.right.nil?
+    end
+    values
   end
 
   def preorder(curr_root = root, values = [], &block)
@@ -84,15 +94,18 @@ class Tree
     left_height > right_height ? left_height : right_height
   end
 
-  def depth(node)
-    
+  def depth(node, curr_root = root)
+    return 0 if curr_root == node
+    node < curr_root ? depth(node, curr_root.left) + 1 : depth(node, curr_root.right) + 1
   end
 
-  def balanced?
-
+  def balanced?(curr_root = root)
+    return true if curr_root.nil?
+    balanced?(curr_root.left) && balanced?(curr_root.right) && (height(curr_root.left) - height(curr_root.right)).abs <= 1
   end
 
   def rebalance
+    self.root = build_tree(inorder)
   end
 
   def pretty_print(node = @root, prefix = "", is_left = true)
@@ -102,26 +115,12 @@ class Tree
   end
 end
 
-arr = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]
-tree = Tree.new(arr)
+tree = Tree.new(Array.new(rand(5..20)) { rand(1..100) })
 tree.pretty_print
-puts tree.height
-tree.insert(2)
-tree.insert(2)
-tree.insert(34)
-tree.insert(35)
-puts "------------------------"
-tree.pretty_print
-puts "------------------------"
-puts tree.min_value
-puts "------------------------"
-puts tree.find(6345).data
-p tree.inorder
-puts "------------------------"
+p tree.balanced?
+p tree.level_order
 p tree.preorder
-puts "------------------------"
+p tree.inorder
 p tree.postorder
-puts "------------------------"
+20.times { tree.insert(rand(101..150)) }
 tree.pretty_print
-puts tree.height
-
