@@ -77,13 +77,19 @@ class Tree
     block_given? ? block.call(curr_root) : values << curr_root.data
   end
 
-  def height(node)
+  def height(curr_root = root)
+    return 0 if curr_root.nil?
+    left_height = curr_root.left.nil? ? 0 : 1 + height(curr_root.left)
+    right_height = curr_root.right.nil? ? 0 : 1 + height(curr_root.right)
+    left_height > right_height ? left_height : right_height
   end
 
   def depth(node)
+    
   end
 
   def balanced?
+
   end
 
   def rebalance
@@ -99,6 +105,7 @@ end
 arr = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]
 tree = Tree.new(arr)
 tree.pretty_print
+puts tree.height
 tree.insert(2)
 tree.insert(2)
 tree.insert(34)
@@ -116,4 +123,5 @@ puts "------------------------"
 p tree.postorder
 puts "------------------------"
 tree.pretty_print
+puts tree.height
 
