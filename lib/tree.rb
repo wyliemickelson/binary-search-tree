@@ -19,10 +19,11 @@ class Tree
 
   def insert(curr_root = root, value)
     return Node.new(value) if curr_root.nil?
+    return curr_root if curr_root.data == value
     if value < curr_root.data
-      curr_root.left = rec_insert(curr_root.left, value)
+      curr_root.left = insert(curr_root.left, value)
     else
-      curr_root.right = rec_insert(curr_root.right, value)
+      curr_root.right = insert(curr_root.right, value)
     end
     curr_root
   end
@@ -46,19 +47,34 @@ class Tree
     min_value(curr_root.left)
   end
 
-  def find(value)
+  def find(curr_root = root, value)
+    return curr_root if curr_root.data == value
+    value < curr_root.data ? find(curr_root.left, value) : find(curr_root.right, value)
   end
 
   def level_order(&block)
+
   end
 
-  def preorder(&block)
+  def preorder(curr_root = root, values = [], &block)
+    return values if curr_root.nil?
+    block_given? ? block.call(curr_root) : values << curr_root.data
+    preorder(curr_root.left, values, &block)
+    preorder(curr_root.right, values, &block)
   end
 
-  def inorder(&block)
+  def inorder(curr_root = root, values = [], &block)
+    return values if curr_root.nil?
+    inorder(curr_root.left, values, &block)
+    block_given? ? block.call(curr_root) : values << curr_root.data
+    inorder(curr_root.right, values, &block)
   end
 
-  def postorder(&block)
+  def postorder(curr_root = root, values = [], &block)
+    return values if curr_root.nil?
+    postorder(curr_root.left, values, &block)
+    postorder(curr_root.right, values, &block)
+    block_given? ? block.call(curr_root) : values << curr_root.data
   end
 
   def height(node)
@@ -83,11 +99,21 @@ end
 arr = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]
 tree = Tree.new(arr)
 tree.pretty_print
-tree.rec_insert(2)
-tree.rec_insert(34)
-tree.rec_insert(35)
+tree.insert(2)
+tree.insert(2)
+tree.insert(34)
+tree.insert(35)
 puts "------------------------"
 tree.pretty_print
 puts "------------------------"
 puts tree.min_value
+puts "------------------------"
+puts tree.find(6345).data
+p tree.inorder
+puts "------------------------"
+p tree.preorder
+puts "------------------------"
+p tree.postorder
+puts "------------------------"
+tree.pretty_print
 
